@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="How Downrigger Blowback Actually Works"
+  description="Why your downrigger ball trails behind the boat instead of dropping straight down, and what changes the angle."
+>
+  <div class="panel-head">
+    <div>
+      <h1>How Downrigger <span class="accent">Blowback</span> Actually Works</h1>
+      <p>Your line counter tells you how much cable is out. It doesn't tell you how deep that cable actually put your lure.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>The basic mechanism</h2>
+    <p>As the boat moves forward, water resistance pushes back against the downrigger ball and cable, just like it pushes back against your lure and line. The faster you troll, the more force is pushing the ball backward relative to how much is pulling it straight down (gravity, via its weight). The result is a cable that angles back behind the boat rather than dropping vertically, and the steeper that angle, the more cable you need to let out to reach the same actual depth.</p>
+
+    <h2>Why ball weight fights back against this</h2>
+    <p>A heavier ball has more downward force from gravity relative to the same backward force from water resistance, so it resists blowback better at a given speed. This is the main reason trollers running faster presentations often size up their ball weight — not for the sake of getting deeper faster, but to keep the same speed from creating an excessive blowback angle.</p>
+
+    <h2>Why this isn't a clean, fixed formula</h2>
+    <p>Unlike the prop pitch math or the USCG horsepower rule, downrigger blowback doesn't have a single universally agreed-upon equation, because it depends on factors that vary by setup: ball shape (round balls and torpedo-shaped balls behave differently), cable diameter and material, current in addition to boat speed, and even how the cable is spooled. Most of what's published — including manufacturer letback charts — comes from empirical testing of specific ball and cable combinations rather than pure physics.</p>
+
+    <h2>Using a calculator as a starting point, not gospel</h2>
+    <p>The value of estimating blowback isn't getting an exact number — it's avoiding being off by enough to matter. If your calculated blowback says you need roughly 30% more cable than your target depth, and you've been running cable-out equal to target depth, you've likely been fishing noticeably shallower than you intended. Confirming with a known-depth check (a marked spot, a temperature probe, or watching a fish's exact strike depth on the sonar) is still the most reliable way to dial in your specific gear.</p>
+
+    <h2>Practical adjustments on the water</h2>
+    <p>If you're marking fish at a depth your presentation isn't reaching, the fastest fixes are letting out more cable, slowing down slightly, or stepping up ball weight — in roughly that order of how easy each is to do mid-troll. Speed changes affect your whole presentation's action, so most trollers prefer adjusting cable-out or ball weight first and treating trolling speed as the variable they'd rather not touch.</p>
+
+    <h2>Try it</h2>
+    <p>The <a href="/downrigger/" style="color:var(--sonar)">downrigger letback calculator</a> estimates blowback angle from your speed and ball weight, then converts that into how much cable to actually let out for your target depth.</p>
+  </article>
+</BaseLayout>

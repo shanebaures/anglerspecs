@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Outboard Max Horsepower Calculator (USCG 33 CFR 183.53)"
+  description="Calculate the USCG legal maximum outboard horsepower for your boat using the official 33 CFR 183.53 length-times-transom-width formula."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Outboard <span class="accent">Specs</span> &amp; Transom Safety</h1>
+      <p>USCG max-horsepower formula (33 CFR 183.53) for boats under 20 ft without a capacity plate, plus a rough persons-capacity check.</p>
+    </div>
+    <div class="panel-code">33 CFR 183.53</div>
+  </div>
+
+  <article class="guide">
+    <p>If your boat already has a capacity plate riveted to the transom, that number is the legal one — full stop. This calculator exists for the boats that don't: homebuilt rigs, older boats that lost their plate, or anyone curious how the Coast Guard actually arrives at the number stamped on every new aluminum boat sold in the US.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Hull Inputs</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Boat length <span class="val" id="hl-val">16 ft</span></label>
+          <input type="range" id="hl" min="8" max="20" step="0.5" value="16">
+        </div>
+        <div class="field">
+          <label>Transom width <span class="val" id="tw-val">6.5 ft</span></label>
+          <input type="range" id="tw" min="3" max="9" step="0.1" value="6.5">
+        </div>
+      </div>
+      <div class="field">
+        <label>Steering &amp; transom height</label>
+        <div class="seg" id="steer-seg">
+          <button data-tall="1" class="active">Remote steer, 20"+ transom</button>
+          <button data-tall="0">Tiller / &lt;20" transom</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Hull type</label>
+        <div class="seg" id="hull-seg">
+          <button data-flat="0" class="active">Round bottom / V-hull</button>
+          <button data-flat="1">Flat bottom / hard chine</button>
+        </div>
+      </div>
+      <div class="note">This is the CFR's generic computation method — used when a boat has <b>no existing capacity plate</b>. If your boat already has one riveted to the transom, that number is the legal one; it overrides this estimate.</div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>USCG Max Rating</h2>
+      <div class="hero-readout">
+        <div class="num" id="hp-out">90</div>
+        <div class="unit">max horsepower (legal ceiling)</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Length × width factor</span>
+        <span class="gauge-value" id="factor-out">104.0</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Rough persons capacity</span>
+        <span class="gauge-value" id="persons-out">6 <small>people</small></span>
+      </div>
+      <div class="flag">Persons capacity here uses the simplified <b>length × width ÷ 15</b> approximation — your actual capacity plate also weighs in motor weight and gear, and the weight limit always wins if it's lower than the headcount.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+function seg(id, cb){
+  const el = document.getElementById(id);
+  const btns = el.querySelectorAll('button');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      cb();
+    });
+  });
+  return ()=> [...btns].find(b=>b.classList.contains('active'));
+}
+
+const hl = document.getElementById('hl');
+const tw = document.getElementById('tw');
+const steerGetActive = seg('steer-seg', calcHP);
+const hullGetActive = seg('hull-seg', calcHP);
+[hl, tw].forEach(el=>el.addEventListener('input', calcHP));
+
+function baseTableHP(factor){
+  if(factor <= 35) return 3;
+  if(factor <= 39) return 5;
+  if(factor <= 42) return 7.5;
+  if(factor <= 45) return 10;
+  if(factor <= 52) return 15;
+  return null;
+}
+
+function calcHP(){
+  document.getElementById('hl-val').textContent = parseFloat(hl.value).toFixed(1) + ' ft';
+  document.getElementById('tw-val').textContent = parseFloat(tw.value).toFixed(1) + ' ft';
+
+  const factor = hl.value * tw.value;
+  document.getElementById('factor-out').textContent = factor.toFixed(1);
+
+  const tallTransom = steerGetActive().dataset.tall === '1';
+  const flatBottom = hullGetActive().dataset.flat === '1';
+
+  let hp;
+  if(factor <= 52){
+    hp = baseTableHP(factor);
+    if(flatBottom) {
+      const tiers = [3,5,7.5,10,15];
+      const idx = tiers.indexOf(hp);
+      hp = idx > 0 ? tiers[idx-1] : tiers[0];
+    }
+  } else {
+    if(tallTransom){
+      hp = (factor*2) - 90;
+    } else {
+      hp = (factor*0.5) - 15;
+    }
+    hp = Math.max(5, Math.round(hp/5)*5);
+  }
+
+  document.getElementById('hp-out').textContent = hp;
+
+  const persons = Math.max(1, Math.floor(factor/15));
+  document.getElementById('persons-out').innerHTML = persons + ' <small>people</small>';
+}
+
+calcHP();
+</script>

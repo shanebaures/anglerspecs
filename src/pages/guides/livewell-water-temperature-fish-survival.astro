@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Livewell Water Temperature and Fish Survival"
+  description="How water temperature changes dissolved oxygen, safe fish density, and what to actually do about it on hot tournament days."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Water Temperature and <span class="accent">Fish Survival</span></h1>
+      <p>The same livewell that keeps a limit healthy in May can stress fish out by August, with nothing about your pump having changed.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>The core problem: warm water holds less oxygen</h2>
+    <p>Dissolved oxygen capacity drops as water temperature rises — it's basic physical chemistry, not something specific to livewells. The same volume of 50°F water holds meaningfully more oxygen than 85°F water. That means the exact same pump, running at the exact same flow rate, is delivering less oxygen-carrying capacity to your fish on a hot August afternoon than it was on a cool spring morning, even though nothing about the equipment changed.</p>
+
+    <h2>Why density matters more in summer</h2>
+    <p>Stocking density — how much fish weight you're putting into a given volume of water — interacts directly with this. A density that's perfectly fine in cold water can stress or kill fish in warm water, because there's simply less oxygen available per fish. This is why density limits tighten as temperature rises rather than staying fixed.</p>
+
+    <h2>Signs the water isn't keeping up</h2>
+    <p>Fish gulping at the surface, lying on their sides, or going lethargic and unresponsive are all signs of oxygen stress before outright mortality. By the time you see floaters, the water's been inadequate for a while — these earlier behavioral signs are worth watching for, especially during a long hot-weather livewell session.</p>
+
+    <h2>What actually helps, in order of effectiveness</h2>
+    <p>Adding ice is one of the most effective single changes you can make, since it directly lowers water temperature and therefore raises oxygen capacity — just don't shock the fish with a sudden, drastic temperature swing. Reducing fish density by releasing early or using a second livewell if your boat has one is the most direct fix. Increasing aeration or adding a supplemental oxygen system addresses the delivery side rather than the capacity side, and helps but doesn't fully substitute for the other two.</p>
+
+    <h2>Recirculating vs. fresh-water flow</h2>
+    <p>Pulling in fresh lake water continuously keeps temperature closer to the lake's ambient temperature, which is usually cooler than a closed recirculating system sitting in direct sun on the deck. The tradeoff is that fresh-water flow only helps if the lake water itself is reasonably cool and clean — pulling in water that's already warm, or murky with algae, doesn't help and can introduce its own problems.</p>
+
+    <h2>Putting it together</h2>
+    <p>None of these factors work in isolation — a well-aerated livewell with too many fish in 85°F water will still struggle, and a lightly stocked well with a weak pump will eventually struggle too. The <a href="/livewell-air/" style="color:var(--sonar)">livewell aeration calculator</a> checks both turnover rate and density against your actual water temperature, since the two problems usually show up together.</p>
+  </article>
+</BaseLayout>

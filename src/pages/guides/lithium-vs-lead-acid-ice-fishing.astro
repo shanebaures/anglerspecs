@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Lithium vs Lead-Acid Batteries for Ice Fishing"
+  description="How LiFePO4 and AGM batteries actually perform in cold weather, what changes at the battery level versus the air temperature, and which to pick for a day on the ice."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Lithium vs Lead-Acid <span class="accent">for Ice Fishing</span></h1>
+      <p>The chemistry that wins on paper in summer doesn't automatically win on the ice — cold changes the math.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>What actually gets cold</h2>
+    <p>Air temperature is a proxy — what matters is the battery's internal temperature, which lags behind ambient air, especially inside an insulated bag or a shanty. A battery that's been sitting in a cold truck overnight is colder than the air reading on your phone suggests.</p>
+
+    <h2>Discharge vs. charge are different problems</h2>
+    <p>LiFePO4 batteries discharge reasonably well in the cold — capacity drops, but they keep working down to well below freezing. Charging is the real hazard: pushing current into a lithium cell that's below freezing can cause permanent internal damage. Lead-acid and AGM batteries tolerate a cold charge far better, which is the main practical advantage they still hold.</p>
+
+    <h2>Weight and runtime tradeoff</h2>
+    <p>Lithium's big advantage — usable capacity at a fraction of the weight — still holds in the cold, even with the derating. A 20Ah lithium battery that's lost 15% of its capacity to cold is still lighter and gives more usable runtime than a same-rated AGM battery that's lost 25%+ of its own capacity in the same conditions.</p>
+
+    <h2>Practical takeaway</h2>
+    <p>If you're hauling electronics out on a sled or ATV, lithium's weight savings usually outweigh the cold derating. The discipline that matters is charging indoors, not on the tailgate — run the numbers for your setup with the <a href="/ice-power/" style="color:var(--sonar)">ice power calculator</a>.</p>
+  </article>
+</BaseLayout>

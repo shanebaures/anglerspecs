@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Anchor Scope & Rode Length Calculator"
+  description="Calculate how much anchor rode to let out based on water depth, bow height, and conditions using standard scope ratios."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Anchor <span class="accent">Scope</span></h1>
+      <p>Scope is the ratio of rode length to total height (water depth plus bow height above the water) — too short and you'll drag, especially anchoring up current on a river for walleye.</p>
+    </div>
+    <div class="panel-code">SCOPE 5:1 – 10:1</div>
+  </div>
+
+  <article class="guide">
+    <p>The number one reason boats drag anchor isn't a bad anchor — it's not enough rode out for the depth and conditions. Scope ratio accounts for the fact that your anchor line needs to pull at a shallow enough angle to set the anchor into the bottom rather than just yanking it straight up.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Inputs</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Water depth <span class="val" id="depth-val">8 ft</span></label>
+          <input type="range" id="depth" min="2" max="60" step="1" value="8">
+        </div>
+        <div class="field">
+          <label>Bow height above water <span class="val" id="bowh-val">2 ft</span></label>
+          <input type="range" id="bowh" min="1" max="6" step="0.5" value="2">
+        </div>
+      </div>
+      <div class="field">
+        <label>Conditions</label>
+        <div class="seg" id="scope-seg">
+          <button data-scope="5">Calm, short stop</button>
+          <button data-scope="7" class="active">Normal overnight</button>
+          <button data-scope="10">Wind / current / rough</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Rode to Let Out</h2>
+      <div class="hero-readout">
+        <div class="num" id="rode-out">70</div>
+        <div class="unit">feet of rode/chain</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Scope ratio used</span>
+        <span class="gauge-value amber" id="scope-out">7:1</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Total height (depth + bow)</span>
+        <span class="gauge-value" id="totalh-out">10 <small>ft</small></span>
+      </div>
+      <div class="note">All-chain rode can run slightly less scope than rope/chain combos since it lies flatter on the bottom. If you're anchoring two points (common for river walleye fishing bow-and-stern), each line can usually come down a notch in scope since the second anchor is doing some of the work.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+function seg(id, cb){
+  const el = document.getElementById(id);
+  const btns = el.querySelectorAll('button');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      cb();
+    });
+  });
+  return ()=> [...btns].find(b=>b.classList.contains('active'));
+}
+
+const depth = document.getElementById('depth');
+const bowh = document.getElementById('bowh');
+const scopeGetActive = seg('scope-seg', calcAnchor);
+[depth, bowh].forEach(el=>el.addEventListener('input', calcAnchor));
+
+function calcAnchor(){
+  document.getElementById('depth-val').textContent = depth.value + ' ft';
+  document.getElementById('bowh-val').textContent = bowh.value + ' ft';
+
+  const scopeRatio = parseFloat(scopeGetActive().dataset.scope);
+  const totalHeight = parseFloat(depth.value) + parseFloat(bowh.value);
+  const rode = totalHeight * scopeRatio;
+
+  document.getElementById('totalh-out').innerHTML = totalHeight.toFixed(1) + ' <small>ft</small>';
+  document.getElementById('scope-out').textContent = scopeRatio + ':1';
+  document.getElementById('rode-out').textContent = Math.round(rode);
+}
+
+calcAnchor();
+</script>

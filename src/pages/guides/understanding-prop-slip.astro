@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Understanding Prop Slip: What It Actually Means"
+  description="Why prop slip exists, what counts as normal, and what high slip is telling you about your prop, load, or hull."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Understanding <span class="accent">Prop Slip</span></h1>
+      <p>Slip isn't a flaw — it's how a prop generates thrust at all. The question is how much is normal.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>Why slip exists at all</h2>
+    <p>A propeller is basically a rotating wing pulling itself through water. If a prop moved through the water exactly as far as its pitch suggests with every rotation — zero slip — it would mean the blades weren't biting into the water at an angle, which means they wouldn't be generating any thrust. Some slip is the propeller doing its job. The number we calculate as "theoretical speed" assumes a prop screwing through a solid, like a bolt through a nut, which water obviously isn't.</p>
+
+    <h2>What counts as normal</h2>
+    <p>For a loaded aluminum fishing boat or pontoon, 10-20% slip at cruising RPM is typical and healthy. Bass boats and bay boats running lighter and faster sometimes see slip in the high single digits to low teens at top end, because the hull is riding higher and the prop is biting more efficiently at speed. Anything consistently above 25-30% is usually telling you something specific is off, not just "boats have slip."</p>
+
+    <h2>What pushes slip higher</h2>
+    <p>The most common causes, roughly in order of how often they show up: a prop pitched too high for the boat's weight and horsepower (the engine can't get the prop spinning fast enough to overcome the load), excess boat weight or poor weight distribution causing the stern to squat, a fouled or damaged prop (even minor edge damage or a fishing line wrapped around the hub changes the water flow dramatically), and incorrect engine height or trim, which changes how cleanly the prop is biting clean water versus turbulent water coming off the hull.</p>
+
+    <h2>What pushes slip lower than expected</h2>
+    <p>Less common, but worth knowing: a prop pitched too low for the setup will sometimes show artificially low slip numbers because the engine can spin it up easily, even though you're leaving top-end speed on the table. Low slip isn't automatically good — it can mean you're under-propped and not using the engine's full power band.</p>
+
+    <h2>Using slip as a diagnostic, not just a number</h2>
+    <p>The real value of calculating slip is comparing it against a baseline for your specific boat. Run the <a href="/prop-pitch/" style="color:var(--sonar)">prop pitch calculator</a> once when the boat is rigged the way you normally run it, note the slip number, and use that as your reference. If slip creeps up significantly later in the season with no change in load, that's often the first sign of a prop ding, fouled lower unit, or a developing mechanical issue worth checking before it gets worse.</p>
+
+    <h2>Slip and fuel economy</h2>
+    <p>Higher slip generally means the engine is working harder to deliver the same speed, which shows up as worse fuel economy at a given throttle setting. If you've noticed your boat burning more fuel to hit the same cruise speed it used to, checking slip is a faster diagnostic step than guessing at carburetor or injector issues.</p>
+  </article>
+</BaseLayout>

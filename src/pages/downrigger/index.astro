@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Downrigger Letback Calculator"
+  description="Estimate downrigger cable blowback angle and cable-out needed to hit your target trolling depth based on speed and ball weight."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Downrigger <span class="accent">Letback</span></h1>
+      <p>Your ball doesn't go straight down — trolling speed pushes it back behind the boat. Cable-out always has to be more than your target depth.</p>
+    </div>
+    <div class="panel-code">BLOWBACK ANGLE</div>
+  </div>
+
+  <article class="guide">
+    <p>The faster you troll and the lighter your ball, the more your downrigger cable angles back behind the boat instead of running straight down — which means the number on your line counter overstates your actual lure depth. This calculator estimates that gap so you're not fishing 5-10 feet shallower than you think.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Inputs</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Troll speed <span class="val" id="trollspd-val">2.0 mph</span></label>
+          <input type="range" id="trollspd" min="1" max="4" step="0.1" value="2.0">
+        </div>
+        <div class="field">
+          <label>Ball weight <span class="val" id="ballw-val">8 lb</span></label>
+          <input type="range" id="ballw" min="4" max="16" step="1" value="8">
+        </div>
+      </div>
+      <div class="field">
+        <label>Target lure depth <span class="val" id="targetdepth-val">25 ft</span></label>
+        <input type="range" id="targetdepth" min="5" max="100" step="1" value="25">
+      </div>
+      <div class="note">Model is an approximation calibrated to typical published letback charts (8 lb ball, ~2 mph ≈ 17–20° blowback). Real blowback also depends on ball shape, cable diameter, and current — treat this as a starting point and fine-tune with your temp gauge or a known-depth marker.</div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Set Your Counter To</h2>
+      <div class="hero-readout">
+        <div class="num" id="cableout-out">27</div>
+        <div class="unit">ft of cable to let out</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Estimated blowback angle</span>
+        <span class="gauge-value amber" id="angle-out">18°</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Actual depth at that cable-out</span>
+        <span class="gauge-value" id="actualdepth-out">25 <small>ft</small></span>
+      </div>
+      <div class="flag" id="rig-flag">Under 20° of blowback — you're in good shape for keeping the ball where you expect it.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+const trollspd = document.getElementById('trollspd');
+const ballw = document.getElementById('ballw');
+const targetdepth = document.getElementById('targetdepth');
+[trollspd, ballw, targetdepth].forEach(el=>el.addEventListener('input', calcDownrigger));
+
+function calcDownrigger(){
+  document.getElementById('trollspd-val').textContent = parseFloat(trollspd.value).toFixed(1) + ' mph';
+  document.getElementById('ballw-val').textContent = ballw.value + ' lb';
+  document.getElementById('targetdepth-val').textContent = targetdepth.value + ' ft';
+
+  const speed = parseFloat(trollspd.value);
+  const weight = parseFloat(ballw.value);
+  let angleDeg = 6 * Math.pow(speed, 1.5) / Math.sqrt(weight/8);
+  angleDeg = Math.min(angleDeg, 75);
+
+  const angleRad = angleDeg * Math.PI/180;
+  const cableOut = targetdepth.value / Math.cos(angleRad);
+  const actualDepthCheck = cableOut * Math.cos(angleRad);
+
+  document.getElementById('angle-out').textContent = angleDeg.toFixed(0) + '°';
+  document.getElementById('cableout-out').textContent = Math.round(cableOut);
+  document.getElementById('actualdepth-out').innerHTML = Math.round(actualDepthCheck) + ' <small>ft</small>';
+
+  const flag = document.getElementById('rig-flag');
+  if(angleDeg < 20){
+    flag.className = 'flag';
+    flag.textContent = "Under 20° of blowback — you're in good shape for keeping the ball where you expect it.";
+  } else if(angleDeg < 35){
+    flag.className = 'flag';
+    flag.textContent = 'Moderate blowback at this speed/weight — fine, just confirm with a known-depth check the first pass.';
+  } else {
+    flag.className = 'flag danger';
+    flag.textContent = 'Heavy blowback — consider a heavier ball or slowing down, since cable-out is running well past your target depth.';
+  }
+}
+
+calcDownrigger();
+</script>

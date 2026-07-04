@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="12V vs 24V vs 36V Trolling Motors Explained"
+  description="What the voltage class of a trolling motor actually changes — amp draw, wire gauge, battery cost, and when each system makes sense."
+>
+  <div class="panel-head">
+    <div>
+      <h1>12V vs 24V vs 36V <span class="accent">Trolling Motors</span></h1>
+      <p>The voltage class isn't really about power — it's about how that power gets delivered, and what it costs you in wire, batteries, and weight.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>It's the same thrust, different amps</h2>
+    <p>A 24V motor producing 80 lb of thrust isn't more powerful than a hypothetical 12V motor at the same thrust — it's pushing the same wattage through half the current. That matters because amps are what determine wire gauge, connector size, and how much voltage you lose over a long run from the battery to the bow.</p>
+
+    <h2>Where the breakpoints actually fall</h2>
+    <p>Most manufacturers cluster their lineups the same way: motors under roughly 55 lb of thrust stay 12V, the 55-112 lb range runs 24V, and anything pushing past 112 lb steps up to 36V. Going to a higher voltage at the same thrust class generally isn't necessary — it mainly matters once thrust climbs high enough that 24V amp draw would require unreasonably thick wire.</p>
+
+    <h2>Cost and weight tradeoffs</h2>
+    <p>Higher voltage systems need more batteries wired in series, which means more weight and more up-front battery cost — lithium especially. The payoff is lower amp draw for the same power, meaning thinner wire, less voltage drop, and often better efficiency at the top of the throttle range.</p>
+
+    <h2>When to step up a class</h2>
+    <p>If you're consistently running your motor at or near max thrust — heavy current, big wind, a loaded-down boat — a higher voltage class for your thrust range will draw less current and run cooler than pushing a lower-voltage motor to its limit. Use the <a href="/boat-power/" style="color:var(--sonar)">trolling motor calculator</a> to size your thrust first, then pick voltage off that number rather than the other way around.</p>
+  </article>
+</BaseLayout>

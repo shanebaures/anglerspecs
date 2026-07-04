@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Choosing the Right Prop Pitch for Your Boat"
+  description="How pitch trades off top speed against acceleration and hole shot, and how to tell if your current prop is matched to your engine."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Choosing the Right <span class="accent">Prop Pitch</span></h1>
+      <p>Pitch is a tradeoff, not a spec to maximize — more isn't automatically better.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>What pitch actually changes</h2>
+    <p>Pitch is the theoretical distance a prop would travel forward in one full rotation if it were moving through a solid rather than water — usually expressed in inches. A higher-pitch prop covers more theoretical distance per rotation, which generally raises top speed potential but asks more of the engine to spin it up, especially out of the hole. A lower-pitch prop spins up easier and accelerates harder, but caps out at a lower top speed.</p>
+
+    <h2>Reading your engine's behavior</h2>
+    <p>Every outboard has a manufacturer-specified maximum RPM range it should reach at full throttle under a normal load. If your engine can't reach the bottom of that range at full throttle, your prop is very likely pitched too high — the engine is being asked to do more work per rotation than it can comfortably deliver, which also tends to show up as poor acceleration and the engine running hotter than normal. If your engine is screaming past the top of its rated range, the prop is probably pitched too low, and you're leaving both speed and engine longevity on the table by over-revving.</p>
+
+    <h2>The 200 RPM rule of thumb</h2>
+    <p>A widely used starting point: each inch of pitch change moves your engine's full-throttle RPM by roughly 150-200 RPM in the opposite direction — going up one inch in pitch drops RPM by about that much, going down raises it by about that much. It's a rough rule, not a precise conversion, but it's useful for deciding which direction to go after a test run, and by how much.</p>
+
+    <h2>Load changes the right answer</h2>
+    <p>A prop that's correctly matched when the boat is lightly loaded with one angler can be wrong once it's loaded down with a full tournament livewell, three people, and gear. If you regularly run the boat in very different load configurations — solo scouting trips versus a fully loaded tournament day — it's worth knowing how much that shifts your WOT RPM, since a prop that's perfect empty can be meaningfully over-pitched when loaded.</p>
+
+    <h2>Cup, rake, and blade count</h2>
+    <p>Pitch isn't the only variable on a prop. Cup (a curl on the trailing edge of the blade) helps hold the stern up and improves bite at the top of the speed range, often allowing a slightly higher pitch than you could otherwise run. Rake affects how the boat rides and corners. Blade count trades top speed (fewer blades, generally) for smoother operation and better hole shot (more blades, generally). These interact with pitch rather than replacing the need to get pitch right in the first place.</p>
+
+    <h2>Confirming with real numbers</h2>
+    <p>Once you've got a prop on, the <a href="/prop-pitch/" style="color:var(--sonar)">prop pitch calculator</a> lets you sanity-check what you're seeing against the theoretical numbers — and checking slip against your actual GPS speed is one of the fastest ways to tell whether a "feels off" hunch about your prop is backed up by real numbers.</p>
+  </article>
+</BaseLayout>

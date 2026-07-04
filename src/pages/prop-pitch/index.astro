@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Prop Pitch & Slip Calculator"
+  description="Calculate theoretical boat speed from prop pitch, RPM, and gear ratio, and find your slip percentage against actual GPS speed."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Prop Pitch &amp; <span class="accent">Slip</span></h1>
+      <p>Theoretical top end from RPM and pitch, and how much of that you're actually losing to slip once GPS speed is in the mix.</p>
+    </div>
+    <div class="panel-code">RPM · PITCH · GEAR</div>
+  </div>
+
+  <article class="guide">
+    <p>Prop slip is the gap between what your prop's pitch says you should be doing and what your GPS actually shows. Some slip is normal and necessary — a prop with zero slip wouldn't be generating any thrust. The question is whether your slip is in a healthy range or telling you something's wrong with prop selection or boat loading.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Inputs</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Engine RPM <span class="val" id="rpm-val">5500</span></label>
+          <input type="range" id="rpm" min="2000" max="7500" step="50" value="5500">
+        </div>
+        <div class="field">
+          <label>Gear ratio <span class="val" id="gear-val">2.0:1</span></label>
+          <input type="range" id="gear" min="1.4" max="3.0" step="0.05" value="2.0">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Prop pitch <span class="val" id="pitch-val">17 in</span></label>
+          <input type="range" id="pitch" min="9" max="29" step="1" value="17">
+        </div>
+        <div class="field">
+          <label>Actual GPS speed (optional) <span class="val" id="actual-val">32 mph</span></label>
+          <input type="range" id="actual" min="0" max="60" step="1" value="32">
+        </div>
+      </div>
+      <div class="note">Formula: <b>theoretical mph = (prop RPM × pitch in) ÷ 1056</b>, where prop RPM = engine RPM ÷ gear ratio. Set actual speed to 0 to hide the slip readout.</div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Result</h2>
+      <div class="hero-readout">
+        <div class="num" id="theo-speed-out">49.3</div>
+        <div class="unit">theoretical mph, zero slip</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Prop shaft RPM</span>
+        <span class="gauge-value" id="propshaft-out">2750</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Slip</span>
+        <span class="gauge-value amber" id="slip-out">35.1%</span>
+      </div>
+      <div class="flag" id="slip-flag">Healthy slip on a loaded fishing boat is usually <b>10–20%</b>. Higher than that often means a prop pitched too high, too much cup, or a hull that's overloaded/squatting.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+const rpm = document.getElementById('rpm');
+const gear = document.getElementById('gear');
+const pitch = document.getElementById('pitch');
+const actual = document.getElementById('actual');
+[rpm, gear, pitch, actual].forEach(el=>el.addEventListener('input', calcProp));
+
+function calcProp(){
+  document.getElementById('rpm-val').textContent = rpm.value;
+  document.getElementById('gear-val').textContent = parseFloat(gear.value).toFixed(2) + ':1';
+  document.getElementById('pitch-val').textContent = pitch.value + ' in';
+  document.getElementById('actual-val').textContent = actual.value + ' mph';
+
+  const propRpm = rpm.value / gear.value;
+  const theoSpeed = (propRpm * pitch.value) / 1056;
+
+  document.getElementById('theo-speed-out').textContent = theoSpeed.toFixed(1);
+  document.getElementById('propshaft-out').textContent = Math.round(propRpm);
+
+  const slipFlag = document.getElementById('slip-flag');
+  const slipOut = document.getElementById('slip-out');
+  if(parseFloat(actual.value) > 0){
+    const slip = ((theoSpeed - actual.value)/theoSpeed)*100;
+    slipOut.textContent = slip.toFixed(1) + '%';
+    slipOut.className = 'gauge-value ' + (slip>30 ? 'warn' : 'amber');
+    slipFlag.style.display='block';
+  } else {
+    slipOut.textContent = '—';
+    slipFlag.style.display='none';
+  }
+}
+
+calcProp();
+</script>

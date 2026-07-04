@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Livewell Aeration & Fish Density Calculator"
+  description="Check your livewell pump's turnover rate and safe fish stocking density against water temperature so your catch stays alive."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Livewell <span class="accent">Aeration</span></h1>
+      <p>Warm water holds less dissolved oxygen and a packed livewell eats through it fast. Check your pump against your load before your catch tells you it wasn't enough.</p>
+    </div>
+    <div class="panel-code">GPH · TURNOVER · LOAD</div>
+  </div>
+
+  <article class="guide">
+    <p>The two things that actually keep fish alive in a livewell are oxygen exchange (how fast your pump cycles fresh water through) and stocking density (how much fish you're asking that water to support). Most factory pumps are sized for moderate conditions — push past that on a hot tournament day with a full limit and you'll find the limit the hard way.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Livewell &amp; Load</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Livewell capacity <span class="val" id="lw-val">30 gal</span></label>
+          <input type="range" id="lw" min="10" max="80" step="1" value="30">
+        </div>
+        <div class="field">
+          <label>Fish weight in well <span class="val" id="fishw-val">12 lb</span></label>
+          <input type="range" id="fishw" min="0" max="60" step="1" value="12">
+        </div>
+      </div>
+      <div class="field">
+        <label>Water temperature <span class="val" id="wtemp-val">75°F</span></label>
+        <input type="range" id="wtemp" min="40" max="95" step="1" value="75">
+      </div>
+      <div class="field">
+        <label>Your pump's rated flow <span class="val" id="pumpgph-val">800 GPH</span></label>
+        <input type="range" id="pumpgph" min="200" max="2000" step="50" value="800">
+      </div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Aeration Check</h2>
+      <div class="hero-readout">
+        <div class="num" id="turnover-out">2.3</div>
+        <div class="unit">minutes per full turnover</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Recommended pump flow</span>
+        <span class="gauge-value amber" id="recgph-out">240–360 <small>GPH</small></span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Safe fish density right now</span>
+        <span class="gauge-value" id="density-out">0.40 <small>lb/gal</small></span>
+      </div>
+      <div class="flag" id="lw-flag">Density and water temp both look fine for this load.</div>
+      <div class="note">Rule of thumb: turn the full volume over every <b>3–5 minutes</b> in warm water (75°F+), and keep stocking density under roughly <b>1 lb of fish per 2–3 gallons</b> — tighter than that in hot water, looser in cold water where oxygen holds better.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+const lw = document.getElementById('lw');
+const fishw = document.getElementById('fishw');
+const wtemp = document.getElementById('wtemp');
+const pumpgph = document.getElementById('pumpgph');
+[lw, fishw, wtemp, pumpgph].forEach(el=>el.addEventListener('input', calcLivewell));
+
+function calcLivewell(){
+  document.getElementById('lw-val').textContent = lw.value + ' gal';
+  document.getElementById('fishw-val').textContent = fishw.value + ' lb';
+  document.getElementById('wtemp-val').textContent = wtemp.value + '°F';
+  document.getElementById('pumpgph-val').textContent = pumpgph.value + ' GPH';
+
+  const turnoverMin = (lw.value / pumpgph.value) * 60;
+  document.getElementById('turnover-out').textContent = turnoverMin.toFixed(1);
+
+  const recLow = Math.round((lw.value/5)*60);
+  const recHigh = Math.round((lw.value/3)*60);
+  document.getElementById('recgph-out').innerHTML = recLow + '–' + recHigh + ' <small>GPH</small>';
+
+  const density = fishw.value / lw.value;
+  document.getElementById('density-out').innerHTML = density.toFixed(2) + ' <small>lb/gal</small>';
+
+  const t = parseFloat(wtemp.value);
+  let safeDensity;
+  if(t <= 60) safeDensity = 0.5;
+  else if(t >= 85) safeDensity = 0.3;
+  else safeDensity = 0.5 - ((t-60)/25)*0.2;
+
+  const flag = document.getElementById('lw-flag');
+  const turnoverOk = turnoverMin <= 5;
+  const densityOk = density <= safeDensity;
+
+  if(densityOk && turnoverOk){
+    flag.className = 'flag';
+    flag.textContent = 'Density and turnover both look fine for this water temp.';
+  } else if(!densityOk && turnoverOk){
+    flag.className = 'flag danger';
+    flag.textContent = 'Fish load is heavy for this water temp (safe target is roughly ' + safeDensity.toFixed(2) + ' lb/gal or less) — consider thinning the well or adding ice/oxygen.';
+  } else if(densityOk && !turnoverOk){
+    flag.className = 'flag danger';
+    flag.textContent = 'Your pump is undersized for this livewell — turnover is slower than the 5-minute target, even though the fish load itself is fine.';
+  } else {
+    flag.className = 'flag danger';
+    flag.textContent = 'Both load and pump flow need attention — heavy fish density combined with slow turnover at this water temp.';
+  }
+}
+
+calcLivewell();
+</script>

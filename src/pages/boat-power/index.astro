@@ -1,0 +1,172 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Trolling Motor Thrust & Battery Runtime Calculator"
+  description="Size your trolling motor thrust to your boat's loaded weight, then estimate battery runtime across 12V, 24V, and 36V systems."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Trolling Motor <span class="accent">Power</span></h1>
+      <p>Size your thrust to your actual loaded weight, then check how long your battery bank holds up at the speed you'll really run.</p>
+    </div>
+    <div class="panel-code">12V · 24V · 36V</div>
+  </div>
+
+  <article class="guide">
+    <p>Most trolling motor shopping starts backwards — people pick a thrust number because it's what their buddy runs, then find out on the water it's either underpowered in wind or way more battery than they need. The math below starts from your boat's actual loaded weight (boat, motor, full fuel, gear, and people) and conditions, then sizes the system around that.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Thrust Sizing</h2>
+      <p class="card-sub">Rule of thumb: 2 lb of thrust per 100 lb of fully loaded boat weight, scaled up for wind/current.</p>
+
+      <div class="field">
+        <label>Fully loaded boat weight <span class="val" id="bw-val">3200 lb</span></label>
+        <input type="range" id="bw" min="500" max="6000" step="50" value="3200">
+      </div>
+
+      <div class="field">
+        <label>Conditions</label>
+        <div class="seg" id="cond-seg">
+          <button data-mult="2" class="active">Calm / no wind</button>
+          <button data-mult="3">Moderate wind</button>
+          <button data-mult="4.5">Heavy wind / current</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Recommended Setup</h2>
+      <div class="hero-readout">
+        <div class="num" id="thrust-out">96</div>
+        <div class="unit">lb thrust recommended</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Suggested system</span>
+        <span class="gauge-value amber" id="volt-rec">24V</span>
+      </div>
+      <div class="note" id="volt-note">80–112 lb class motors typically run 24V.</div>
+    </div>
+  </div>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Battery Runtime</h2>
+      <p class="card-sub">Estimate run time at a given speed setting. Power draw is modeled off real trolling-motor spec sheets — actual draw varies by motor and prop.</p>
+
+      <div class="field">
+        <label>Motor thrust class <span class="val" id="mthrust-val">80 lb</span></label>
+        <input type="range" id="mthrust" min="30" max="160" step="5" value="80">
+      </div>
+
+      <div class="field">
+        <label>System voltage</label>
+        <div class="seg" id="sysv-seg">
+          <button data-v="12">12V</button>
+          <button data-v="24" class="active">24V</button>
+          <button data-v="36">36V</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Bank capacity <span class="val" id="ah-val">100 Ah</span></label>
+          <input type="range" id="ah" min="20" max="300" step="5" value="100">
+        </div>
+        <div class="field">
+          <label>Speed setting <span class="val" id="speed-val">70%</span></label>
+          <input type="range" id="speed" min="10" max="100" step="5" value="70">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Battery chemistry</label>
+        <div class="seg" id="chem-seg">
+          <button data-dod="0.9" class="active">Lithium (90% DoD)</button>
+          <button data-dod="0.5">AGM / Lead-acid (50% DoD)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Estimated Runtime</h2>
+      <div class="hero-readout">
+        <div class="num" id="runtime-out">3.4</div>
+        <div class="unit">hours at this speed</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Draw at this speed</span>
+        <span class="gauge-value" id="amps-out">38.5 <small>A</small></span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Usable energy</span>
+        <span class="gauge-value" id="energy-out">2160 <small>Wh</small></span>
+      </div>
+      <div class="note">Model: <b>~12 W of input per lb of thrust</b> at full throttle, scaled down through the speed range (current draw falls off faster than speed — most motors only pull 25–35% of max amps at the 70% speed click). Cold water, weed load, and prop fouling all shorten real runtime.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+function seg(id, cb){
+  const el = document.getElementById(id);
+  const btns = el.querySelectorAll('button');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      cb();
+    });
+  });
+  return ()=> [...btns].find(b=>b.classList.contains('active'));
+}
+
+const bw = document.getElementById('bw');
+const condGetActive = seg('cond-seg', calcThrust);
+bw.addEventListener('input', calcThrust);
+
+function calcThrust(){
+  document.getElementById('bw-val').textContent = bw.value + ' lb';
+  const mult = parseFloat(condGetActive().dataset.mult);
+  const thrust = Math.round((bw.value/100)*mult);
+  document.getElementById('thrust-out').textContent = thrust;
+  let v, note;
+  if(thrust <= 55){ v='12V'; note='Under ~55 lb thrust, a single 12V battery setup is standard.'; }
+  else if(thrust <= 112){ v='24V'; note='80–112 lb class motors typically run 24V.'; }
+  else { v='36V'; note='Above ~112 lb thrust, 36V keeps amp draw (and wire/battery size) manageable.'; }
+  document.getElementById('volt-rec').textContent = v;
+  document.getElementById('volt-note').textContent = note;
+}
+
+const mthrust = document.getElementById('mthrust');
+const ah = document.getElementById('ah');
+const speed = document.getElementById('speed');
+const sysvGetActive = seg('sysv-seg', calcRuntime);
+const chemGetActive = seg('chem-seg', calcRuntime);
+[mthrust, ah, speed].forEach(el=>el.addEventListener('input', calcRuntime));
+
+function calcRuntime(){
+  document.getElementById('mthrust-val').textContent = mthrust.value + ' lb';
+  document.getElementById('ah-val').textContent = ah.value + ' Ah';
+  document.getElementById('speed-val').textContent = speed.value + '%';
+
+  const voltage = parseFloat(sysvGetActive().dataset.v);
+  const dod = parseFloat(chemGetActive().dataset.dod);
+  const wattsPerLb = 12;
+  const maxPower = mthrust.value * wattsPerLb;
+  const speedFrac = speed.value/100;
+  const power = maxPower * Math.pow(speedFrac, 2.5);
+  const amps = power/voltage;
+  const usableWh = ah.value * voltage * dod;
+  const runtime = usableWh / power;
+
+  document.getElementById('runtime-out').textContent = runtime.toFixed(1);
+  document.getElementById('amps-out').innerHTML = amps.toFixed(1) + ' <small>A</small>';
+  document.getElementById('energy-out').innerHTML = Math.round(usableWh) + ' <small>Wh</small>';
+}
+
+calcThrust();
+calcRuntime();
+</script>

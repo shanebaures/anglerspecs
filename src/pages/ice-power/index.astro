@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Ice Fishing Battery Runtime Calculator (LiveScope & Flasher)"
+  description="Estimate how long your lithium or AGM battery will run your flasher, sonar, or LiveScope on the ice, accounting for cold-weather capacity loss."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Ice &amp; <span class="accent">Electronics</span></h1>
+      <p>Flashers and LiveScope draw more than people expect, and lithium loses real capacity once the battery itself gets cold — not just the air.</p>
+    </div>
+    <div class="panel-code">−20°F TO 70°F</div>
+  </div>
+
+  <article class="guide">
+    <p>Cold doesn't just make you miserable on the ice — it measurably shrinks how much energy your battery can deliver before it needs a recharge. LiFePO4 batteries hold up better than lead-acid in the cold, but neither chemistry performs at its rated capacity once the battery itself drops below freezing. This calculator factors that derating in instead of just dividing amp-hours by amps.</p>
+  </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Device &amp; Battery</h2>
+
+      <div class="field">
+        <label>Electronics on the ice</label>
+        <div class="seg" id="dev-seg">
+          <button data-w="8" class="active">Flasher only (~8W)</button>
+          <button data-w="14">GPS/sonar combo (~14W)</button>
+          <button data-w="22">LiveScope + display (~22W)</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Screen brightness</label>
+        <div class="seg" id="bright-seg">
+          <button data-m="0.8">Low</button>
+          <button data-m="1.0" class="active">Medium</button>
+          <button data-m="1.3">Full / sunlight</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Battery capacity <span class="val" id="iceah-val">20 Ah</span></label>
+          <input type="range" id="iceah" min="6" max="100" step="2" value="20">
+        </div>
+        <div class="field">
+          <label>Ambient temp <span class="val" id="temp-val">20°F</span></label>
+          <input type="range" id="temp" min="-20" max="70" step="5" value="20">
+        </div>
+      </div>
+      <div class="field">
+        <label>Battery type</label>
+        <div class="seg" id="icechem-seg">
+          <button data-type="lifepo4" class="active">LiFePO4 (lithium)</button>
+          <button data-type="lead">AGM / lead-acid</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Estimated Runtime</h2>
+      <div class="hero-readout">
+        <div class="num" id="ice-runtime-out">14.2</div>
+        <div class="unit">hours on the ice</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Cold capacity factor</span>
+        <span class="gauge-value" id="cold-factor-out">88%</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Draw</span>
+        <span class="gauge-value" id="ice-amps-out">0.67 <small>A</small></span>
+      </div>
+      <div class="flag" id="cold-flag" style="display:none;"></div>
+      <div class="note">LiFePO4 capacity derates in cold but recovers once warmed — the bigger risk is <b>charging below freezing</b>, which can permanently damage the cells. Charge inside, fish outside. Lead-acid loses capacity faster in the cold but tolerates a cold charge better.</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+function seg(id, cb){
+  const el = document.getElementById(id);
+  const btns = el.querySelectorAll('button');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      cb();
+    });
+  });
+  return ()=> [...btns].find(b=>b.classList.contains('active'));
+}
+
+const iceah = document.getElementById('iceah');
+const temp = document.getElementById('temp');
+const devGetActive = seg('dev-seg', calcIce);
+const brightGetActive = seg('bright-seg', calcIce);
+const icechemGetActive = seg('icechem-seg', calcIce);
+[iceah, temp].forEach(el=>el.addEventListener('input', calcIce));
+
+function coldFactor(tempF, isLithium){
+  const t = parseFloat(tempF);
+  if(isLithium){
+    if(t>=70) return 1.0;
+    if(t>=32) return 1.0 - (70-t)*(0.10/38);
+    if(t>=0)  return 0.90 - (32-t)*(0.10/32);
+    return Math.max(0.55, 0.80 - (0-t)*(0.15/20));
+  } else {
+    if(t>=70) return 1.0;
+    if(t>=32) return 1.0 - (70-t)*(0.20/38);
+    if(t>=0)  return 0.80 - (32-t)*(0.20/32);
+    return Math.max(0.35, 0.60 - (0-t)*(0.20/20));
+  }
+}
+
+function calcIce(){
+  document.getElementById('iceah-val').textContent = iceah.value + ' Ah';
+  document.getElementById('temp-val').textContent = temp.value + '°F';
+
+  const baseW = parseFloat(devGetActive().dataset.w);
+  const brightMult = parseFloat(brightGetActive().dataset.m);
+  const isLithium = icechemGetActive().dataset.type === 'lifepo4';
+  const dod = isLithium ? 0.9 : 0.5;
+  const voltage = 12;
+
+  const power = baseW * brightMult;
+  const amps = power/voltage;
+  const factor = coldFactor(temp.value, isLithium);
+  const usableWh = iceah.value * voltage * dod * factor;
+  const runtime = usableWh / power;
+
+  document.getElementById('ice-runtime-out').textContent = runtime.toFixed(1);
+  document.getElementById('cold-factor-out').textContent = Math.round(factor*100) + '%';
+  document.getElementById('ice-amps-out').innerHTML = amps.toFixed(2) + ' <small>A</small>';
+
+  const flag = document.getElementById('cold-flag');
+  if(isLithium && temp.value < 32){
+    flag.style.display='block';
+    flag.className='flag';
+    flag.innerHTML = "<b>Do not charge this battery</b> while it's below freezing — bring it inside to warm up before putting it back on a charger.";
+  } else {
+    flag.style.display='none';
+  }
+}
+
+calcIce();
+</script>

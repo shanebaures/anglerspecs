@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="How the USCG Max Horsepower Formula Works (33 CFR 183.53)"
+  description="A plain-English walkthrough of the federal formula that sets maximum legal outboard horsepower for boats under 20 feet."
+>
+  <div class="panel-head">
+    <div>
+      <h1>How the USCG <span class="accent">Horsepower Formula</span> Works</h1>
+      <p>The number on your capacity plate didn't come from nowhere — here's the actual regulation behind it.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>Where this rule comes from</h2>
+    <p>33 CFR 183.53 is the federal regulation that governs maximum horsepower ratings for monohull outboard boats under 20 feet. It applies to manufacturers building new boats, and it's also the fallback method anyone can use to estimate a safe ceiling for an older boat or homebuilt rig that never got an official capacity plate. The rule grew out of testing the Coast Guard and the boating industry did decades ago, looking at how much power a given hull size could handle before becoming dangerously hard to control or prone to swamping.</p>
+
+    <h2>Step one: the factor</h2>
+    <p>Everything starts with a single number called the factor — boat length in feet multiplied by transom width in feet, both measured at their maximum points, excluding handles and other fittings. A 16-foot boat with a 6.5-foot transom gives a factor of 104. This factor is meant to approximate how much hull and stern structure you have to absorb engine weight and thrust.</p>
+
+    <h2>Step two: the table, for smaller factors</h2>
+    <p>For factors of 52 or below, the regulation uses a fixed lookup table rather than a formula: a factor of 35 or less caps out at 3 hp, climbing through 5, 7.5, 10, and 15 hp as the factor increases toward 52. Flat-bottom or hard-chine hulls get bumped down one tier in this range, since that hull shape handles power differently than a round-bottom or V-hull at the same size.</p>
+
+    <h2>Step three: the formulas, for larger factors</h2>
+    <p>Above a factor of 52.5, the table is replaced by two formulas depending on setup. Boats with remote steering and at least a 20-inch transom use (factor × 2) − 90. Boats with tiller steering or a shorter transom use (factor × 0.5) − 15. The remote-steering formula scales up much faster, which reflects that a helm-steered boat with a tall transom can typically handle considerably more power than the same size hull steered by tiller.</p>
+
+    <h2>Why the result can be rounded up</h2>
+    <p>The regulation allows manufacturers to round a calculated rating up to the next multiple of 5 horsepower when the factor is above 52.5, since most engines are sold in 5 hp increments anyway. That's why you'll sometimes see a boat's plate showing a slightly higher number than a raw calculation would produce — that's the rounding allowance, not an error.</p>
+
+    <h2>What this number doesn't tell you</h2>
+    <p>This is a legal ceiling for new construction, not a performance recommendation and not a substitute for the actual capacity plate on a specific boat. A manufacturer can rate a boat below this ceiling for their own liability or performance reasons, and many do. If your boat has a capacity plate already, that number — set by the manufacturer, sometimes through additional handling testing beyond just this formula — is the one that actually governs, full stop.</p>
+
+    <h2>Run your own numbers</h2>
+    <p>The <a href="/outboard-specs/" style="color:var(--sonar)">outboard specs calculator</a> walks through this exact formula with your boat's measurements, including the hull-type and transom-height branches described above.</p>
+  </article>
+</BaseLayout>

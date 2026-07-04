@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Series vs Parallel Battery Wiring for Trolling Motors"
+  description="How series and parallel wiring change voltage and capacity differently, and which one you actually need for a 24V or 36V trolling motor system."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Series vs. Parallel <span class="accent">Battery Wiring</span></h1>
+      <p>One of these gets you more voltage. The other gets you more runtime. Mixing them up gets you the wrong battery bank.</p>
+    </div>
+  </div>
+
+  <article class="guide">
+    <h2>Series wiring: stacking voltage</h2>
+    <p>Wiring batteries in series — positive terminal of one to the negative terminal of the next — adds their voltages together while the amp-hour capacity stays the same as a single battery. Two 12V 100Ah batteries in series produce a 24V system that's still rated at 100Ah, not 200Ah. This is exactly how 24V and 36V trolling motor systems are built from standard 12V batteries: two in series for 24V, three in series for 36V.</p>
+
+    <h2>Parallel wiring: stacking capacity</h2>
+    <p>Wiring batteries in parallel — positive to positive, negative to negative — keeps voltage the same but adds the amp-hour capacities together. Two 12V 100Ah batteries in parallel stay at 12V but now give you 200Ah of capacity. This is how you'd extend runtime on a 12V system without changing voltage.</p>
+
+    <h2>Combining both for bigger banks</h2>
+    <p>A 24V system with extended runtime needs both: two pairs of batteries in series to make two 24V "strings," then those two strings wired in parallel to combine their capacity. This is more wiring complexity and more places for a connection to go wrong, which is part of why pre-built lithium trolling batteries with built-in series/parallel banking have gotten popular — they handle this internally rather than requiring external series-parallel wiring between separate battery boxes.</p>
+
+    <h2>Why mismatched batteries cause problems</h2>
+    <p>Whether wired in series or parallel, batteries in the same bank should match in capacity, age, and chemistry. In a series string, a single weaker battery limits the whole string's usable capacity and can be driven into a deeper discharge than the others during use, accelerating its decline. In parallel, a weaker battery can actually be charged or discharged by the stronger ones in unpredictable ways. Replacing one battery in an aging bank with a brand-new one is a common mistake — the new battery gets dragged down to match the old ones rather than helping the bank as a whole.</p>
+
+    <h2>Lithium changes some of the math</h2>
+    <p>Lithium trolling batteries marketed as 24V or 36V units often have the series wiring built into the battery itself via an internal battery management system, rather than requiring you to wire multiple 12V batteries together externally. This simplifies installation and avoids the mismatched-battery problem entirely, at a higher upfront cost than buying separate 12V batteries and wiring your own bank.</p>
+
+    <h2>Sizing your bank once voltage is settled</h2>
+    <p>Once you know your system voltage, the remaining question is how much capacity (Ah) you need for the runtime you want. The <a href="/boat-power/" style="color:var(--sonar)">trolling motor battery runtime calculator</a> works backward from your thrust, speed setting, and chemistry to estimate how big a bank you actually need — useful before you buy four batteries you didn't need or two that won't get you through the day.</p>
+  </article>
+</BaseLayout>
