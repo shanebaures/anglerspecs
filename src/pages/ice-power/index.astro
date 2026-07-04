@@ -106,60 +106,59 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   <div class="panel-head" style="margin-top:20px;">
     <div>
       <h1>Electric Auger <span class="accent">Hole Count</span></h1>
-      <p>How many holes can you drill before the battery gives out — accounting for ice thickness and auger diameter.</p>
+      <p>How many holes can you drill before the battery gives out — anchored to manufacturer published specs where available.</p>
     </div>
-    <div class="panel-code">ION · STRIKEMASTER · RAZR</div>
+    <div class="panel-code">ION · ESKIMO · STRIKEMASTER</div>
   </div>
 
   <div class="calc-grid">
     <div class="card">
-      <h2>Auger &amp; Conditions</h2>
+      <h2>Your Auger</h2>
 
       <div class="field">
-        <label>Auger model / power</label>
-        <div class="seg" id="auger-seg">
-          <button data-w="400" class="active">ION Alpha 8" (~400W avg)</button>
-          <button data-w="500">ION X 10" / StrikeMaster (~500W avg)</button>
-          <button data-w="600">RAZR 8" / high-torque (~600W avg)</button>
-        </div>
-      </div>
-
-      <div class="row2">
-        <div class="field">
-          <label>Ice thickness <span class="val" id="ice-val">12 in</span></label>
-          <input type="range" id="icethick" min="4" max="36" step="1" value="12">
-        </div>
-        <div class="field">
-          <label>Battery capacity <span class="val" id="augah-val">5 Ah</span></label>
-          <input type="range" id="augah" min="2" max="20" step="0.5" value="5">
-        </div>
+        <label>Model</label>
+        <select id="auger-model">
+          <optgroup label="ION (40V)">
+            <option value="ion-alpha-8"    selected>ION Alpha 8"  — 40V / 4Ah</option>
+            <option value="ion-alpha-8-2x">ION Alpha 8"  — 40V / 8Ah (2 batteries)</option>
+            <option value="ion-alpha-10">  ION Alpha 10" — 40V / 4Ah</option>
+          </optgroup>
+          <optgroup label="Eskimo (40V)">
+            <option value="esk-e40-8">Eskimo E40 8"  — 40V / 4Ah</option>
+            <option value="esk-e40-10">Eskimo E40 10" — 40V / 4Ah</option>
+          </optgroup>
+          <optgroup label="StrikeMaster">
+            <option value="sm-40v-8"> StrikeMaster 40V 8"  — 40V / 5Ah</option>
+            <option value="sm-40v-10">StrikeMaster 40V 10" — 40V / 5Ah</option>
+            <option value="sm-24v-6"> StrikeMaster 24V 6"  — 24V / 4Ah</option>
+            <option value="sm-24v-8"> StrikeMaster 24V 8"  — 24V / 4Ah</option>
+          </optgroup>
+        </select>
       </div>
 
       <div class="field">
-        <label>Battery voltage</label>
-        <div class="seg" id="augv-seg">
-          <button data-v="20" class="active">20V</button>
-          <button data-v="40">40V</button>
-          <button data-v="80">80V</button>
-        </div>
+        <label>Ice thickness <span class="val" id="ice-val">12 in</span></label>
+        <input type="range" id="icethick" min="4" max="36" step="1" value="12">
       </div>
 
-      <div class="note">Model assumes average power draw (not peak startup). Actual hole count varies with ice hardness, blade sharpness, and how hard you push. A dull bit in hard ice can cut hole count by 30–40%.</div>
+      <div class="note" id="auger-source-note">
+        ION published spec: 2000 in/charge (8" bit). Holes = published spec ÷ ice thickness. Dull blades, hard ice, or cold batteries will reduce actual count — treat this as ideal conditions.
+      </div>
     </div>
 
     <div class="card readout-card">
       <h2>Estimated Holes</h2>
       <div class="hero-readout">
-        <div class="num" id="holes-out">24</div>
+        <div class="num" id="holes-out">167</div>
         <div class="unit">holes per charge</div>
       </div>
       <div class="gauge-row">
-        <span class="gauge-label">Seconds per hole (est.)</span>
-        <span class="gauge-value amber" id="secperhole-out">18 <small>sec</small></span>
+        <span class="gauge-label">Battery</span>
+        <span class="gauge-value amber" id="aug-bat-out">40V / 4Ah</span>
       </div>
       <div class="gauge-row">
-        <span class="gauge-label">Battery energy</span>
-        <span class="gauge-value" id="aug-wh-out">100 <small>Wh</small></span>
+        <span class="gauge-label">At this ice thickness</span>
+        <span class="gauge-value" id="aug-thick-out">12 <small>in</small></span>
       </div>
       <div class="flag" id="auger-flag">Plenty for a typical day — most ice anglers drill 15–30 holes.</div>
     </div>
@@ -251,46 +250,64 @@ function calcIce(){
   }
 }
 
-// ── AUGER CALC ──────────────────────────────────────────────────────
-const icethick = document.getElementById('icethick');
-const augah    = document.getElementById('augah');
+// ── AUGER CALC — anchored to published manufacturer specs ────────────
+// inchesPerCharge = manufacturer published value at ideal conditions
+// For models without published specs, estimated from ION efficiency scaled by battery capacity
+// ION Alpha 8" anchor: 2000 in / (40V × 4Ah) = 12.5 in/Wh baseline
 
-const augerGetActive = seg('auger-seg', calcAuger);
-const augvGetActive  = seg('augv-seg',  calcAuger);
+const AUGERS = {
+  'ion-alpha-8':    { label:'40V / 4Ah',  volts:40, ah:4,  inPerCharge:2000, published:true  },
+  'ion-alpha-8-2x': { label:'40V / 8Ah',  volts:40, ah:8,  inPerCharge:4000, published:true  },
+  'ion-alpha-10':   { label:'40V / 4Ah',  volts:40, ah:4,  inPerCharge:1200, published:true  },
+  'esk-e40-8':      { label:'40V / 4Ah',  volts:40, ah:4,  inPerCharge:1300, published:true  },
+  'esk-e40-10':     { label:'40V / 4Ah',  volts:40, ah:4,  inPerCharge:800,  published:true  },
+  // StrikeMaster: 24V 6" = 100 holes, 24V 8" = 50 holes (published at unspecified conditions)
+  // 40V 5Ah: estimated from ION baseline × (5Ah/4Ah) capacity ratio, slight efficiency derating
+  'sm-40v-8':       { label:'40V / 5Ah',  volts:40, ah:5,  inPerCharge:2100, published:false },
+  'sm-40v-10':      { label:'40V / 5Ah',  volts:40, ah:5,  inPerCharge:1260, published:false },
+  'sm-24v-6':       { label:'24V / 4Ah',  volts:24, ah:4,  inPerCharge:600,  published:true  }, // 100 holes × ~6" avg ice
+  'sm-24v-8':       { label:'24V / 4Ah',  volts:24, ah:4,  inPerCharge:600,  published:true  }, // 50 holes × ~12" avg ice
+};
 
-[icethick, augah].forEach(el => el.addEventListener('input', calcAuger));
+// StrikeMaster 24V note: "50 holes (8") / 100 holes (6")" published, assumed at ~12" ice
+
+const augerSelect = document.getElementById('auger-model');
+const icethick    = document.getElementById('icethick');
+
+[augerSelect, icethick].forEach(el => el.addEventListener('change', calcAuger));
+icethick.addEventListener('input', calcAuger);
 
 function calcAuger(){
-  document.getElementById('ice-val').textContent  = icethick.value + ' in';
-  document.getElementById('augah-val').textContent= augah.value + ' Ah';
+  const key = augerSelect.value;
+  const m   = AUGERS[key];
+  const thickness = parseFloat(icethick.value);
 
-  const avgW    = parseFloat(augerGetActive()?.dataset.w || 400);
-  const voltage = parseFloat(augvGetActive()?.dataset.v  || 20);
-  const thickness = parseFloat(icethick.value); // inches
+  document.getElementById('ice-val').textContent = thickness + ' in';
+  document.getElementById('aug-bat-out').textContent = m.label;
+  document.getElementById('aug-thick-out').innerHTML = thickness + ' <small>in</small>';
 
-  // seconds per hole: base rate ~12 sec/inch for 8" bit at avg power, scaled by power ratio
-  const baseSecPerInch = 12;
-  const powerRatio = 400 / avgW; // more powerful = faster
-  const secPerHole = baseSecPerInch * thickness * powerRatio;
+  // holes = inches available ÷ ice thickness
+  const holes = Math.floor(m.inPerCharge / thickness);
+  document.getElementById('holes-out').textContent = holes;
 
-  const totalWh = augah.value * voltage * 0.85; // 85% efficiency for motor loads
-  const totalSec = (totalWh / avgW) * 3600;
-  const holes   = Math.floor(totalSec / secPerHole);
-
-  document.getElementById('holes-out').textContent       = holes;
-  document.getElementById('secperhole-out').innerHTML    = Math.round(secPerHole) + ' <small>sec</small>';
-  document.getElementById('aug-wh-out').innerHTML        = Math.round(totalWh) + ' <small>Wh</small>';
+  // Source note
+  const noteEl = document.getElementById('auger-source-note');
+  if(m.published){
+    noteEl.innerHTML = `<b>Published spec:</b> ${m.inPerCharge.toLocaleString()} in/charge. Holes = published spec ÷ ice thickness. Sharp blades, moderate ice hardness, and a warm battery will be needed to match this number.`;
+  } else {
+    noteEl.innerHTML = `<b>Estimated</b> — StrikeMaster 40V published specs not available; estimated from ION efficiency baseline scaled to this battery capacity. Treat as rough planning number.`;
+  }
 
   const flag = document.getElementById('auger-flag');
-  if(holes < 10){
+  if(holes < 15){
     flag.className = 'flag danger';
-    flag.textContent = 'Low hole count — consider a higher-capacity battery pack or a second battery for a full day of prospecting.';
-  } else if(holes < 20){
+    flag.textContent = 'Low hole count for this ice thickness — consider a second battery or moving to thinner-ice spots.';
+  } else if(holes < 35){
     flag.className = 'flag';
-    flag.textContent = 'Fine for a fixed spot day, but tight if you plan to move around a lot.';
+    flag.textContent = 'Solid for a focused day on a known spot. Tight if you plan to prospect a lot.';
   } else {
     flag.className = 'flag';
-    flag.textContent = 'Plenty for a typical day — most ice anglers drill 15–30 holes.';
+    flag.textContent = 'More than enough for a full day on the ice — even with a lot of moving around.';
   }
 }
 
