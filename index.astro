@@ -1,0 +1,299 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Ice Fishing Battery Runtime Calculator (LiveScope, Flasher & Auger)"
+  description="Estimate runtime for your ice fishing electronics — flasher, LiveScope, dual units — across 12V, 14.8V, and 16V batteries, with cold-weather derating and electric auger hole count."
+>
+  <div class="panel-head">
+    <div>
+      <h1>Ice &amp; <span class="accent">Electronics Power</span></h1>
+      <p>Runtime for your ice fishing electronics at real-world temps, including 14.8V NMC battery support and dual-unit setups. Plus an electric auger hole counter.</p>
+    </div>
+    <div class="panel-code">12V · 14.8V · 16V</div>
+  </div>
+
+  <article class="guide">
+    <p>Cold doesn't just make you miserable on the ice — it measurably shrinks how much energy your battery can deliver. 14.8V NMC lithium batteries (Norsk, Amped Outdoors, Scheels-brand units) have become the go-to for LiveScope and Mega Live because they run the electronics closer to their rated voltage ceiling and deliver roughly 15–20% more runtime than a same-Ah 12V LiFePO4. The tradeoff: they need a dedicated 16.8V charger and should never be charged below freezing just like any lithium chemistry.</p>
+  </article>
+
+  <!-- Electronics runtime calculator -->
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Electronics Setup</h2>
+
+      <div class="field">
+        <label>Primary device</label>
+        <div class="seg" id="dev-seg">
+          <button data-w="8" class="active">Flasher (~8W)</button>
+          <button data-w="14">Sonar/GPS combo (~14W)</button>
+          <button data-w="22">LiveScope / Mega Live (~22W)</button>
+          <button data-w="30">LiveScope + large display (~30W)</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Running a second unit?</label>
+        <div class="seg" id="dual-seg">
+          <button data-w2="0" class="active">No — single unit</button>
+          <button data-w2="8">+ Flasher (~8W)</button>
+          <button data-w2="14">+ Sonar/GPS (~14W)</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Screen brightness</label>
+        <div class="seg" id="bright-seg">
+          <button data-m="0.8">Low</button>
+          <button data-m="1.0" class="active">Medium</button>
+          <button data-m="1.3">Full / direct sunlight</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Battery voltage</label>
+        <div class="seg" id="volt-seg">
+          <button data-v="12" data-label="12V LiFePO4" class="active">12V LiFePO4</button>
+          <button data-v="14.8" data-label="14.8V NMC">14.8V NMC</button>
+          <button data-v="16" data-label="16V NMC">16V NMC</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Battery capacity <span class="val" id="iceah-val">20 Ah</span></label>
+          <input type="range" id="iceah" min="6" max="100" step="2" value="20">
+        </div>
+        <div class="field">
+          <label>Ambient temp <span class="val" id="temp-val">20°F</span></label>
+          <input type="range" id="temp" min="-20" max="70" step="5" value="20">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Battery chemistry</label>
+        <div class="seg" id="icechem-seg">
+          <button data-type="lifepo4" class="active">LiFePO4 / NMC lithium</button>
+          <button data-type="lead">AGM / lead-acid</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Estimated Runtime</h2>
+      <div class="hero-readout">
+        <div class="num" id="ice-runtime-out">14.2</div>
+        <div class="unit">hours on the ice</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Total draw</span>
+        <span class="gauge-value" id="ice-watts-out">8.0 <small>W</small></span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Cold capacity factor</span>
+        <span class="gauge-value" id="cold-factor-out">88%</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Usable energy</span>
+        <span class="gauge-value" id="ice-wh-out">216 <small>Wh</small></span>
+      </div>
+      <div class="flag" id="cold-flag" style="display:none;"></div>
+      <div class="note" id="volt-note">14.8V NMC batteries run electronics near their rated voltage ceiling, delivering roughly 15–20% more runtime than a same-Ah 12V pack. They need a dedicated 16.8V charger — do not charge with a standard 12V or LiFePO4 charger.</div>
+    </div>
+  </div>
+
+  <!-- Auger calculator -->
+  <div class="panel-head" style="margin-top:20px;">
+    <div>
+      <h1>Electric Auger <span class="accent">Hole Count</span></h1>
+      <p>How many holes can you drill before the battery gives out — accounting for ice thickness and auger diameter.</p>
+    </div>
+    <div class="panel-code">ION · STRIKEMASTER · RAZR</div>
+  </div>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Auger &amp; Conditions</h2>
+
+      <div class="field">
+        <label>Auger model / power</label>
+        <div class="seg" id="auger-seg">
+          <button data-w="400" class="active">ION Alpha 8" (~400W avg)</button>
+          <button data-w="500">ION X 10" / StrikeMaster (~500W avg)</button>
+          <button data-w="600">RAZR 8" / high-torque (~600W avg)</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Ice thickness <span class="val" id="ice-val">12 in</span></label>
+          <input type="range" id="icethick" min="4" max="36" step="1" value="12">
+        </div>
+        <div class="field">
+          <label>Battery capacity <span class="val" id="augah-val">5 Ah</span></label>
+          <input type="range" id="augah" min="2" max="20" step="0.5" value="5">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Battery voltage</label>
+        <div class="seg" id="augv-seg">
+          <button data-v="20" class="active">20V</button>
+          <button data-v="40">40V</button>
+          <button data-v="80">80V</button>
+        </div>
+      </div>
+
+      <div class="note">Model assumes average power draw (not peak startup). Actual hole count varies with ice hardness, blade sharpness, and how hard you push. A dull bit in hard ice can cut hole count by 30–40%.</div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Estimated Holes</h2>
+      <div class="hero-readout">
+        <div class="num" id="holes-out">24</div>
+        <div class="unit">holes per charge</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Seconds per hole (est.)</span>
+        <span class="gauge-value amber" id="secperhole-out">18 <small>sec</small></span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Battery energy</span>
+        <span class="gauge-value" id="aug-wh-out">100 <small>Wh</small></span>
+      </div>
+      <div class="flag" id="auger-flag">Plenty for a typical day — most ice anglers drill 15–30 holes.</div>
+    </div>
+  </div>
+
+</BaseLayout>
+
+<script is:inline>
+function seg(id, cb){
+  const el = document.getElementById(id);
+  if(!el) return () => null;
+  const btns = el.querySelectorAll('button');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      cb();
+    });
+  });
+  return ()=> [...btns].find(b=>b.classList.contains('active'));
+}
+
+// ── ELECTRONICS CALC ────────────────────────────────────────────────
+const iceah   = document.getElementById('iceah');
+const temp    = document.getElementById('temp');
+
+const devGetActive    = seg('dev-seg',    calcIce);
+const dualGetActive   = seg('dual-seg',   calcIce);
+const brightGetActive = seg('bright-seg', calcIce);
+const voltGetActive   = seg('volt-seg',   calcIce);
+const icechemGetActive= seg('icechem-seg',calcIce);
+
+[iceah, temp].forEach(el => el.addEventListener('input', calcIce));
+
+function coldFactor(tempF, isLithium){
+  const t = parseFloat(tempF);
+  if(isLithium){
+    if(t >= 70) return 1.0;
+    if(t >= 32) return 1.0 - (70-t)*(0.10/38);
+    if(t >= 0)  return 0.90 - (32-t)*(0.10/32);
+    return Math.max(0.55, 0.80 - (0-t)*(0.15/20));
+  } else {
+    if(t >= 70) return 1.0;
+    if(t >= 32) return 1.0 - (70-t)*(0.20/38);
+    if(t >= 0)  return 0.80 - (32-t)*(0.20/32);
+    return Math.max(0.35, 0.60 - (0-t)*(0.20/20));
+  }
+}
+
+function calcIce(){
+  document.getElementById('iceah-val').textContent  = iceah.value + ' Ah';
+  document.getElementById('temp-val').textContent   = temp.value + '°F';
+
+  const baseW  = parseFloat(devGetActive()?.dataset.w  || 8);
+  const dual   = parseFloat(dualGetActive()?.dataset.w2 || 0);
+  const brightM= parseFloat(brightGetActive()?.dataset.m || 1.0);
+  const voltage= parseFloat(voltGetActive()?.dataset.v  || 12);
+  const isLith = icechemGetActive()?.dataset.type === 'lifepo4';
+  const dod    = isLith ? 0.9 : 0.5;
+
+  const totalW = (baseW + dual) * brightM;
+  const factor  = coldFactor(temp.value, isLith);
+  const usableWh= iceah.value * voltage * dod * factor;
+  const runtime = usableWh / totalW;
+
+  document.getElementById('ice-runtime-out').textContent    = runtime.toFixed(1);
+  document.getElementById('ice-watts-out').innerHTML        = totalW.toFixed(1) + ' <small>W</small>';
+  document.getElementById('cold-factor-out').textContent    = Math.round(factor*100) + '%';
+  document.getElementById('ice-wh-out').innerHTML           = Math.round(usableWh) + ' <small>Wh</small>';
+
+  // voltage-specific note
+  const noteEl = document.getElementById('volt-note');
+  if(voltage === 14.8){
+    noteEl.innerHTML = '<b>14.8V NMC</b> (Norsk, Amped Outdoors, etc.) runs electronics near their rated voltage ceiling — expect ~15–20% more runtime vs. a same-Ah 12V pack. Requires a dedicated <b>16.8V charger</b>. Never charge below freezing.';
+  } else if(voltage === 16){
+    noteEl.innerHTML = '<b>16V lithium</b> packs push electronics toward the high end of their rated input range (most units accept up to 17–32V). Great for screen brightness and transducer performance. Confirm your unit\'s max input voltage before use. Requires a compatible high-voltage charger.';
+  } else {
+    noteEl.innerHTML = '<b>12V LiFePO4</b> is the standard chemistry for ice flashers and most sonar. Flat discharge curve means stable power to the end of the charge. Upgrade to 14.8V NMC if you\'re running LiveScope or Mega Live and want maximum runtime per pound of battery.';
+  }
+
+  // charge-below-freezing warning
+  const flag = document.getElementById('cold-flag');
+  if(isLith && parseFloat(temp.value) < 32){
+    flag.style.display = 'block';
+    flag.className = 'flag';
+    flag.innerHTML = "<b>Do not charge this battery below freezing</b> — bring it inside to warm up first. Applies to both LiFePO4 and NMC lithium.";
+  } else {
+    flag.style.display = 'none';
+  }
+}
+
+// ── AUGER CALC ──────────────────────────────────────────────────────
+const icethick = document.getElementById('icethick');
+const augah    = document.getElementById('augah');
+
+const augerGetActive = seg('auger-seg', calcAuger);
+const augvGetActive  = seg('augv-seg',  calcAuger);
+
+[icethick, augah].forEach(el => el.addEventListener('input', calcAuger));
+
+function calcAuger(){
+  document.getElementById('ice-val').textContent  = icethick.value + ' in';
+  document.getElementById('augah-val').textContent= augah.value + ' Ah';
+
+  const avgW    = parseFloat(augerGetActive()?.dataset.w || 400);
+  const voltage = parseFloat(augvGetActive()?.dataset.v  || 20);
+  const thickness = parseFloat(icethick.value); // inches
+
+  // seconds per hole: base rate ~12 sec/inch for 8" bit at avg power, scaled by power ratio
+  const baseSecPerInch = 12;
+  const powerRatio = 400 / avgW; // more powerful = faster
+  const secPerHole = baseSecPerInch * thickness * powerRatio;
+
+  const totalWh = augah.value * voltage * 0.85; // 85% efficiency for motor loads
+  const totalSec = (totalWh / avgW) * 3600;
+  const holes   = Math.floor(totalSec / secPerHole);
+
+  document.getElementById('holes-out').textContent       = holes;
+  document.getElementById('secperhole-out').innerHTML    = Math.round(secPerHole) + ' <small>sec</small>';
+  document.getElementById('aug-wh-out').innerHTML        = Math.round(totalWh) + ' <small>Wh</small>';
+
+  const flag = document.getElementById('auger-flag');
+  if(holes < 10){
+    flag.className = 'flag danger';
+    flag.textContent = 'Low hole count — consider a higher-capacity battery pack or a second battery for a full day of prospecting.';
+  } else if(holes < 20){
+    flag.className = 'flag';
+    flag.textContent = 'Fine for a fixed spot day, but tight if you plan to move around a lot.';
+  } else {
+    flag.className = 'flag';
+    flag.textContent = 'Plenty for a typical day — most ice anglers drill 15–30 holes.';
+  }
+}
+
+calcIce();
+calcAuger();
+</script>
