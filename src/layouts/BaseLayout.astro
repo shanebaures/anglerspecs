@@ -99,6 +99,16 @@ const modules = [
   .field label .val{color:var(--sonar);}
   .field input[type=range]{ width:100%; -webkit-appearance:none; height:4px; background:var(--hairline-strong); border-radius:4px; outline:none; }
   .field input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--amber); border:2px solid var(--ink); box-shadow:0 0 0 1px var(--amber); cursor:pointer; }
+  .field select{
+    width:100%; background:#0A1A20; border:1px solid rgba(231,241,242,0.18);
+    color:#E7F1F2; padding:10px 12px; border-radius:7px;
+    font-family:'JetBrains Mono',monospace; font-size:13px; cursor:pointer;
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239FB7BC' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center;
+  }
+  .field select optgroup{ background:#102C36; color:#9FB7BC; font-weight:600; }
+  .field select option { background:#0A1A20; color:#E7F1F2; }
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .seg{ display:flex; border:1px solid var(--hairline-strong); border-radius:7px; overflow:hidden; }
   .seg button{ flex:1; background:#0A1A20 !important; color:#9FB7BC !important; border:none; padding:9px 6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; cursor:pointer; border-right:1px solid rgba(231,241,242,0.18); transition:background 0.1s; }
