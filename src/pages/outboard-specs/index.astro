@@ -25,13 +25,38 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <p class="card-sub">Include everything in your weight: boat, motor, fuel (~6 lb/gal), gear, and people. That's the number that determines real speed.</p>
 
       <div class="field">
-        <label>Hull type</label>
-        <div class="seg" id="hulltype-seg">
-          <button data-c="155" class="active">Pontoon</button>
-          <button data-c="172">Aluminum V / Jon</button>
-          <button data-c="190">Fiberglass runabout</button>
-          <button data-c="210">Bass boat / high-speed</button>
-        </div>
+        <label>Hull type &amp; length</label>
+        <select id="hull-select">
+          <optgroup label="Pontoon — 2 tube">
+            <option value="155" data-label="Pontoon 2-tube — under 20'">Pontoon 2-tube — under 20'</option>
+            <option value="145" data-label="Pontoon 2-tube — 20-22'" selected>Pontoon 2-tube — 20-22'</option>
+            <option value="150" data-label="Pontoon 2-tube — 23'+">Pontoon 2-tube — 23'+</option>
+          </optgroup>
+          <optgroup label="Tritoon / Performance Pontoon">
+            <option value="152" data-label="Tritoon / performance pontoon — any length">Tritoon / performance — any length</option>
+          </optgroup>
+          <optgroup label="Jon / Flat Bottom">
+            <option value="150" data-label="Jon / flat-bottom — under 14'">Jon / flat-bottom — under 14'</option>
+            <option value="158" data-label="Jon / flat-bottom — 14-16'">Jon / flat-bottom — 14-16'</option>
+            <option value="165" data-label="Jon / flat-bottom — 17-20'">Jon / flat-bottom — 17-20'</option>
+          </optgroup>
+          <optgroup label="Aluminum V-Hull">
+            <option value="155" data-label="Aluminum V-hull — under 14'">Aluminum V-hull — under 14'</option>
+            <option value="168" data-label="Aluminum V-hull — 14-16'">Aluminum V-hull — 14-16'</option>
+            <option value="178" data-label="Aluminum V-hull — 17-19'">Aluminum V-hull — 17-19'</option>
+            <option value="188" data-label="Aluminum V-hull — 20'+">Aluminum V-hull — 20'+</option>
+          </optgroup>
+          <optgroup label="Fiberglass V-Hull / Walleye / Multi-Species">
+            <option value="192" data-label="Fiberglass walleye / multi-species — under 18'">Fiberglass walleye / multi-species — under 18'</option>
+            <option value="200" data-label="Fiberglass walleye / multi-species — 18-21'">Fiberglass walleye / multi-species — 18-21'</option>
+            <option value="207" data-label="Fiberglass walleye / multi-species — 22'+">Fiberglass walleye / multi-species — 22'+</option>
+          </optgroup>
+          <optgroup label="Bass Boat">
+            <option value="206" data-label="Bass boat — under 18'">Bass boat — under 18'</option>
+            <option value="215" data-label="Bass boat — 18-20'">Bass boat — 18-20'</option>
+            <option value="228" data-label="Bass boat — 21'+">Bass boat — 21'+</option>
+          </optgroup>
+        </select>
       </div>
 
       <div class="row2">
@@ -45,7 +70,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </div>
       </div>
 
-      <div class="note">Formula: <b>MPH = C × √(HP ÷ lbs)</b>, where C is Crouch's constant for your hull type. Crouch published C = 172 for average runabouts and cruisers, 218 for high-speed runabouts. Constants here are calibrated to those published anchors. Real-world speed varies with prop pitch, trim, bottom condition, and wind.</div>
+      <div class="note">Formula: <b>MPH = C × √(HP ÷ lbs)</b>. Crouch published C = 172 for average runabouts. The length brackets here apply a calibrated adjustment — longer waterlines have less wave-making drag per pound at planing speeds, so a 20' aluminum genuinely outruns a 16' aluminum at the same power-to-weight ratio. Constants back-solved from real-world speed data across common hull types. Real-world speed also varies with prop pitch, trim, and bottom condition.</div>
     </div>
 
     <div class="card readout-card">
@@ -140,15 +165,16 @@ function seg(id, cb){
 }
 
 // ── SPEED ESTIMATOR (Crouch's Formula) ──────────────────────────────
-const spdHp = document.getElementById('spd-hp');
-const spdWt = document.getElementById('spd-wt');
-const hulltypeGetActive = seg('hulltype-seg', calcSpeed);
+const spdHp      = document.getElementById('spd-hp');
+const spdWt      = document.getElementById('spd-wt');
+const hullSelect = document.getElementById('hull-select');
 [spdHp, spdWt].forEach(el => el.addEventListener('input', calcSpeed));
+hullSelect.addEventListener('change', calcSpeed);
 
 function calcSpeed(){
   const hp = parseFloat(spdHp.value);
   const wt = parseFloat(spdWt.value);
-  const C  = parseFloat(hulltypeGetActive().dataset.c);
+  const C  = parseFloat(hullSelect.value);
 
   document.getElementById('spd-hp-val').textContent = hp + ' HP';
   document.getElementById('spd-wt-val').textContent = wt.toLocaleString() + ' lb';
