@@ -2,20 +2,78 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 <BaseLayout
-  title="Outboard Max Horsepower Calculator (USCG 33 CFR 183.53)"
-  description="Calculate the USCG legal maximum outboard horsepower for your boat using the official 33 CFR 183.53 length-times-transom-width formula."
+  title="Outboard Speed Estimator & Max Horsepower Calculator (USCG 33 CFR 183.53)"
+  description="Estimate your boat's top speed using Crouch's Formula, then check the USCG legal maximum horsepower for your hull using the official 33 CFR 183.53 formula."
 >
+
+  <!-- Speed Estimator — FIRST -->
   <div class="panel-head">
     <div>
-      <h1>Outboard <span class="accent">Specs</span> &amp; Transom Safety</h1>
-      <p>USCG max-horsepower formula (33 CFR 183.53) for boats under 20 ft without a capacity plate, plus a rough persons-capacity check.</p>
+      <h1>Top Speed <span class="accent">Estimator</span></h1>
+      <p>Crouch's Formula — the standard naval architecture method for estimating planing hull speed from horsepower and loaded weight.</p>
     </div>
-    <div class="panel-code">33 CFR 183.53</div>
+    <div class="panel-code">CROUCH · MPH</div>
   </div>
 
   <article class="guide">
-    <p>If your boat already has a capacity plate riveted to the transom, that number is the legal one — full stop. This calculator exists for the boats that don't: homebuilt rigs, older boats that lost their plate, or anyone curious how the Coast Guard actually arrives at the number stamped on every new aluminum boat sold in the US.</p>
+    <p>George Crouch's formula has been used by naval architects for decades to estimate planing hull speed. It accounts for the two variables that actually drive top speed — power and weight — with a hull-type constant that captures the efficiency difference between a flat-bottom jon boat and a stepped fiberglass bass boat. Include everything in your loaded weight: boat, motor, full fuel tank, gear, and passengers.</p>
   </article>
+
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Hull &amp; Power</h2>
+      <p class="card-sub">Include everything in your weight: boat, motor, fuel (~6 lb/gal), gear, and people. That's the number that determines real speed.</p>
+
+      <div class="field">
+        <label>Hull type</label>
+        <div class="seg" id="hulltype-seg">
+          <button data-c="155" class="active">Pontoon</button>
+          <button data-c="172">Aluminum V / Jon</button>
+          <button data-c="190">Fiberglass runabout</button>
+          <button data-c="210">Bass boat / high-speed</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Horsepower <span class="val" id="spd-hp-val">90 HP</span></label>
+          <input type="range" id="spd-hp" min="5" max="400" step="5" value="90">
+        </div>
+        <div class="field">
+          <label>Loaded weight <span class="val" id="spd-wt-val">2,400 lb</span></label>
+          <input type="range" id="spd-wt" min="500" max="8000" step="50" value="2400">
+        </div>
+      </div>
+
+      <div class="note">Formula: <b>MPH = C × √(HP ÷ lbs)</b>, where C is Crouch's constant for your hull type. Crouch published C = 172 for average runabouts and cruisers, 218 for high-speed runabouts. Constants here are calibrated to those published anchors. Real-world speed varies with prop pitch, trim, bottom condition, and wind.</div>
+    </div>
+
+    <div class="card readout-card">
+      <h2>Estimated Top Speed</h2>
+      <div class="hero-readout">
+        <div class="num" id="topspeed-out">38</div>
+        <div class="unit">mph (ideal conditions)</div>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Power-to-weight</span>
+        <span class="gauge-value amber" id="ptw-out">26.7 <small>lb/HP</small></span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label">Planing status</span>
+        <span class="gauge-value" id="plane-out">Planes well</span>
+      </div>
+      <div class="flag" id="speed-flag">Good power-to-weight ratio for this hull type.</div>
+    </div>
+  </div>
+
+  <!-- USCG Max HP — SECOND -->
+  <div class="panel-head" style="margin-top:20px;">
+    <div>
+      <h1>USCG Max <span class="accent">Horsepower</span></h1>
+      <p>33 CFR 183.53 formula for boats under 20 ft without a capacity plate, plus a rough persons-capacity check.</p>
+    </div>
+    <div class="panel-code">33 CFR 183.53</div>
+  </div>
 
   <div class="calc-grid">
     <div class="card">
@@ -61,9 +119,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <span class="gauge-label">Rough persons capacity</span>
         <span class="gauge-value" id="persons-out">6 <small>people</small></span>
       </div>
-      <div class="flag">Persons capacity here uses the simplified <b>length × width ÷ 15</b> approximation — your actual capacity plate also weighs in motor weight and gear, and the weight limit always wins if it's lower than the headcount.</div>
+      <div class="flag">Persons capacity uses the simplified <b>length × width ÷ 15</b> approximation — your actual capacity plate also weighs in motor weight and gear, and the weight limit always wins if it's lower than the headcount.</div>
     </div>
   </div>
+
 </BaseLayout>
 
 <script is:inline>
@@ -80,11 +139,58 @@ function seg(id, cb){
   return ()=> [...btns].find(b=>b.classList.contains('active'));
 }
 
+// ── SPEED ESTIMATOR (Crouch's Formula) ──────────────────────────────
+const spdHp = document.getElementById('spd-hp');
+const spdWt = document.getElementById('spd-wt');
+const hulltypeGetActive = seg('hulltype-seg', calcSpeed);
+[spdHp, spdWt].forEach(el => el.addEventListener('input', calcSpeed));
+
+function calcSpeed(){
+  const hp = parseFloat(spdHp.value);
+  const wt = parseFloat(spdWt.value);
+  const C  = parseFloat(hulltypeGetActive().dataset.c);
+
+  document.getElementById('spd-hp-val').textContent = hp + ' HP';
+  document.getElementById('spd-wt-val').textContent = wt.toLocaleString() + ' lb';
+
+  const mph = C * Math.sqrt(hp / wt);
+  document.getElementById('topspeed-out').textContent = Math.round(mph);
+
+  const ptw = wt / hp;
+  document.getElementById('ptw-out').innerHTML = ptw.toFixed(1) + ' <small>lb/HP</small>';
+
+  const planeEl = document.getElementById('plane-out');
+  const flag    = document.getElementById('speed-flag');
+
+  if(ptw <= 30){
+    planeEl.textContent = 'Strong plane';
+    planeEl.className   = 'gauge-value';
+    flag.className      = 'flag';
+    flag.textContent    = 'Excellent power-to-weight ratio — this boat should get up and stay on plane easily in most conditions.';
+  } else if(ptw <= 50){
+    planeEl.textContent = 'Planes well';
+    planeEl.className   = 'gauge-value';
+    flag.className      = 'flag';
+    flag.textContent    = 'Solid ratio for a planing hull. Performance will soften with a full load or into a chop.';
+  } else if(ptw <= 70){
+    planeEl.textContent = 'Marginal';
+    planeEl.className   = 'gauge-value amber';
+    flag.className      = 'flag';
+    flag.textContent    = 'This ratio is on the edge of planing — the boat will get up but may struggle in rough water or with a full passenger load.';
+  } else {
+    planeEl.textContent = "Won't plane";
+    planeEl.className   = 'gauge-value warn';
+    flag.className      = 'flag danger';
+    flag.textContent    = "More than 70 lb per HP — this setup will push water rather than plane. Crouch's formula applies to planing hulls; actual top speed will be lower than the estimate.";
+  }
+}
+
+// ── USCG MAX HP (33 CFR 183.53) ─────────────────────────────────────
 const hl = document.getElementById('hl');
 const tw = document.getElementById('tw');
 const steerGetActive = seg('steer-seg', calcHP);
-const hullGetActive = seg('hull-seg', calcHP);
-[hl, tw].forEach(el=>el.addEventListener('input', calcHP));
+const hullGetActive  = seg('hull-seg',  calcHP);
+[hl, tw].forEach(el => el.addEventListener('input', calcHP));
 
 function baseTableHP(factor){
   if(factor <= 35) return 3;
@@ -99,34 +205,30 @@ function calcHP(){
   document.getElementById('hl-val').textContent = parseFloat(hl.value).toFixed(1) + ' ft';
   document.getElementById('tw-val').textContent = parseFloat(tw.value).toFixed(1) + ' ft';
 
-  const factor = hl.value * tw.value;
-  document.getElementById('factor-out').textContent = factor.toFixed(1);
-
+  const factor     = hl.value * tw.value;
   const tallTransom = steerGetActive().dataset.tall === '1';
-  const flatBottom = hullGetActive().dataset.flat === '1';
+  const flatBottom  = hullGetActive().dataset.flat  === '1';
+
+  document.getElementById('factor-out').textContent = factor.toFixed(1);
 
   let hp;
   if(factor <= 52){
     hp = baseTableHP(factor);
-    if(flatBottom) {
+    if(flatBottom){
       const tiers = [3,5,7.5,10,15];
       const idx = tiers.indexOf(hp);
       hp = idx > 0 ? tiers[idx-1] : tiers[0];
     }
   } else {
-    if(tallTransom){
-      hp = (factor*2) - 90;
-    } else {
-      hp = (factor*0.5) - 15;
-    }
+    hp = tallTransom ? (factor*2) - 90 : (factor*0.5) - 15;
     hp = Math.max(5, Math.round(hp/5)*5);
   }
 
   document.getElementById('hp-out').textContent = hp;
-
   const persons = Math.max(1, Math.floor(factor/15));
   document.getElementById('persons-out').innerHTML = persons + ' <small>people</small>';
 }
 
+calcSpeed();
 calcHP();
 </script>
